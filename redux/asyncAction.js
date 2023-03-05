@@ -1,7 +1,7 @@
-
-
+const { applyMiddleware, createStore } = require("redux")
 const { dispatch } = require("../rtk/app/store")
-
+const thunkMiddleware = require("redux-thunk")
+const { default: fetch } = require("node-fetch")
 const initialState = {
     loading: false,
     posts: [],
@@ -64,13 +64,22 @@ const fetchPosts = () => {
 
         try {
             const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
-            const posts = await response.json;
+            const posts = await response.json();
             dispatch(fetchPostSucceeded(posts))
         }
         catch (err) {
             dispatch(fetchPostFailed(err));
         }
-
-
     }
 }
+
+//create store
+const store = createStore(reducer, applyMiddleware(thunkMiddleware.default));
+
+
+store.subscribe(() => {
+    console.log(store.getState())
+});
+
+
+store.dispatch(fetchPosts());
