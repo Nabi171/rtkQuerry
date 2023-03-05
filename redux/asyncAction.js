@@ -1,3 +1,7 @@
+
+
+const { dispatch } = require("../rtk/app/store")
+
 const initialState = {
     loading: false,
     posts: [],
@@ -17,7 +21,7 @@ const fetchPostSucceeded = (posts) => {
     }
 }
 
-const fetchPostError = (error) => {
+const fetchPostFailed = (error) => {
     return {
         type: "posts/failed",
         payload: error
@@ -51,5 +55,22 @@ const reducer = (state = initialState, action) => {
 
         default:
             break;
+    }
+}
+
+const fetchPosts = () => {
+    return async (dispatch) => {
+        dispatch(fetchPostRequested());
+
+        try {
+            const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
+            const posts = await response.json;
+            dispatch(fetchPostSucceeded(posts))
+        }
+        catch (err) {
+            dispatch(fetchPostFailed(err));
+        }
+
+
     }
 }
